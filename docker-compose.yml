@@ -1,0 +1,36 @@
+services:
+
+  # ── Container 1: BitNet LLM Server ──────────────────────
+  bitnet-server:
+    image: mcr.microsoft.com/appsvc/docs/sidecars/sample-experiment:bitnet-b1.58-2b-4t-gguf
+    container_name: bitnet-server
+    ports:
+      - "11434:11434"
+    # CPU only — no GPU needed
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 4G
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:11434/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Container 2: MedAgents Python App ───────────────────
+  medagents-app:
+    build: .
+    container_name: medagents-app
+    depends_on:
+      bitnet-server:
+        condition: service_healthy
+    environment:
+      - BITNET_BASE_URL=http://bitnet-server:11434
+      - BITNET_MODEL=bitnet-b1.58-2b-4t
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./config:/app/config
+    command: python main.py

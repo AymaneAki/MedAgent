@@ -1,0 +1,420 @@
+{
+  "_metadata": {
+    "version": "1.0",
+    "sources": [
+      "WHO International Laboratory Standards (ISO 15189:2012)",
+      "ABIM Laboratory Reference Ranges 2024",
+      "LabPedia Critical/Panic Values",
+      "StatPearls - Normal CBC Reference Intervals (NCBI, 2024)"
+    ],
+    "note": "Reference ranges are for adults (18-65 years). Gender-specific ranges noted where applicable. Always validate against local laboratory standards.",
+    "units_convention": "SI units preferred"
+  },
+
+  "hematology": {
+
+    "hemoglobine": {
+      "label": "Hémoglobine",
+      "unit": "g/dL",
+      "gender_specific": true,
+      "normal": {
+        "male":   { "min": 13.5, "max": 17.5 },
+        "female": { "min": 12.0, "max": 16.0 },
+        "default":{ "min": 12.0, "max": 17.5 }
+      },
+      "critical_low": 7.0,
+      "critical_high": 20.0,
+      "clinical_risk_low": "Anémie sévère — risque d'insuffisance cardiaque, transfusion à envisager",
+      "clinical_risk_high": "Polyglobulie — risque thrombotique"
+    },
+
+    "hematocrite": {
+      "label": "Hématocrite",
+      "unit": "%",
+      "gender_specific": true,
+      "normal": {
+        "male":   { "min": 41, "max": 53 },
+        "female": { "min": 36, "max": 46 },
+        "default":{ "min": 36, "max": 53 }
+      },
+      "critical_low": 20,
+      "critical_high": 60,
+      "clinical_risk_low": "Anémie profonde",
+      "clinical_risk_high": "Hyperviscosité sanguine"
+    },
+
+    "leucocytes": {
+      "label": "Leucocytes (GB)",
+      "unit": "G/L",
+      "gender_specific": false,
+      "normal": { "min": 4.0, "max": 10.0 },
+      "critical_low": 1.0,
+      "critical_high": 30.0,
+      "clinical_risk_low": "Leucopénie sévère — immunodépression, risque infectieux majeur",
+      "clinical_risk_high": "Hyperleucocytose — possible leucémie ou infection sévère"
+    },
+
+    "plaquettes": {
+      "label": "Plaquettes",
+      "unit": "G/L",
+      "gender_specific": false,
+      "normal": { "min": 150, "max": 400 },
+      "critical_low": 50,
+      "critical_high": 1000,
+      "clinical_risk_low": "Thrombopénie sévère — risque hémorragique spontané",
+      "clinical_risk_high": "Thrombocytose — risque thrombotique"
+    },
+
+    "vgm": {
+      "label": "Volume Globulaire Moyen (VGM)",
+      "unit": "fL",
+      "gender_specific": false,
+      "normal": { "min": 80, "max": 100 },
+      "critical_low": null,
+      "critical_high": null,
+      "clinical_risk_low": "Microcytose — carence martiale probable",
+      "clinical_risk_high": "Macrocytose — carence B12/folate, alcoolisme"
+    },
+
+    "neutrophiles": {
+      "label": "Polynucléaires Neutrophiles",
+      "unit": "G/L",
+      "gender_specific": false,
+      "normal": { "min": 1.8, "max": 7.5 },
+      "critical_low": 0.5,
+      "critical_high": 20.0,
+      "clinical_risk_low": "Neutropénie sévère (agranulocytose) — risque infectieux vital",
+      "clinical_risk_high": "Hyperneutrophilie — infection bactérienne sévère"
+    },
+
+    "lymphocytes": {
+      "label": "Lymphocytes",
+      "unit": "G/L",
+      "gender_specific": false,
+      "normal": { "min": 1.0, "max": 4.0 },
+      "critical_low": 0.5,
+      "critical_high": 15.0,
+      "clinical_risk_low": "Lymphopénie — immunodépression",
+      "clinical_risk_high": "Hyperlymphocytose — leucémie lymphoïde possible"
+    }
+  },
+
+  "biochemistry": {
+
+    "glucose": {
+      "label": "Glycémie (à jeun)",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 3.9, "max": 6.1 },
+      "critical_low": 2.5,
+      "critical_high": 25.0,
+      "clinical_risk_low": "Hypoglycémie sévère — coma hypoglycémique imminent",
+      "clinical_risk_high": "Hyperglycémie majeure — acidocétose ou coma hyperosmolaire"
+    },
+
+    "sodium": {
+      "label": "Sodium (Natrémie)",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 136, "max": 145 },
+      "critical_low": 120,
+      "critical_high": 155,
+      "clinical_risk_low": "Hyponatrémie sévère — œdème cérébral, convulsions",
+      "clinical_risk_high": "Hypernatrémie sévère — déshydratation cérébrale, effondrement cardiovasculaire"
+    },
+
+    "potassium": {
+      "label": "Potassium (Kaliémie)",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 3.5, "max": 5.0 },
+      "critical_low": 2.8,
+      "critical_high": 6.5,
+      "clinical_risk_low": "Hypokaliémie sévère — arythmie cardiaque, arrêt cardiaque",
+      "clinical_risk_high": "Hyperkaliémie sévère — fibrillation ventriculaire, arrêt cardiaque"
+    },
+
+    "creatinine": {
+      "label": "Créatinine",
+      "unit": "µmol/L",
+      "gender_specific": true,
+      "normal": {
+        "male":   { "min": 62, "max": 115 },
+        "female": { "min": 44, "max": 97 },
+        "default":{ "min": 44, "max": 115 }
+      },
+      "critical_low": null,
+      "critical_high": 500,
+      "clinical_risk_high": "Insuffisance rénale aiguë sévère — dialyse en urgence à envisager"
+    },
+
+    "uree": {
+      "label": "Urée",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 2.5, "max": 7.5 },
+      "critical_low": null,
+      "critical_high": 35.0,
+      "clinical_risk_high": "Urémie sévère — encéphalopathie urémique"
+    },
+
+    "calcium": {
+      "label": "Calcium total",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 2.15, "max": 2.55 },
+      "critical_low": 1.75,
+      "critical_high": 3.25,
+      "clinical_risk_low": "Hypocalcémie sévère — tétanie, convulsions",
+      "clinical_risk_high": "Hypercalcémie sévère — cardiotoxicité, coma"
+    },
+
+    "magnesium": {
+      "label": "Magnésium",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 0.75, "max": 1.05 },
+      "critical_low": 0.5,
+      "critical_high": 2.0,
+      "clinical_risk_low": "Hypomagnésémie — tétanie, arythmie",
+      "clinical_risk_high": "Hypermagnésémie — paralysie respiratoire, arrêt cardiaque"
+    },
+
+    "phosphore": {
+      "label": "Phosphore",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 0.87, "max": 1.45 },
+      "critical_low": 0.3,
+      "critical_high": null,
+      "clinical_risk_low": "Hypophosphatémie sévère — dysfonction musculaire, insuffisance respiratoire"
+    },
+
+    "chlore": {
+      "label": "Chlore (Chlorémie)",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 98, "max": 106 },
+      "critical_low": 70,
+      "critical_high": 120,
+      "clinical_risk_low": "Hypochlorémie — alcalose métabolique, vomissements sévères",
+      "clinical_risk_high": "Hyperchlorémie — acidose hyperchlorémique"
+    },
+
+    "bicarbonate": {
+      "label": "Bicarbonate (HCO3-)",
+      "unit": "mmol/L",
+      "gender_specific": false,
+      "normal": { "min": 22, "max": 29 },
+      "critical_low": 10,
+      "critical_high": 40,
+      "clinical_risk_low": "Acidose métabolique sévère",
+      "clinical_risk_high": "Alcalose métabolique sévère — troubles respiratoires"
+    }
+  },
+
+  "liver_function": {
+
+    "alat": {
+      "label": "ALAT (SGPT)",
+      "unit": "U/L",
+      "gender_specific": false,
+      "normal": { "min": 7, "max": 56 },
+      "critical_low": null,
+      "critical_high": 1000,
+      "clinical_risk_high": "Cytolyse hépatique massive — hépatite aiguë sévère"
+    },
+
+    "asat": {
+      "label": "ASAT (SGOT)",
+      "unit": "U/L",
+      "gender_specific": false,
+      "normal": { "min": 10, "max": 40 },
+      "critical_low": null,
+      "critical_high": 1000,
+      "clinical_risk_high": "Cytolyse hépatique ou musculaire massive"
+    },
+
+    "bilirubine_totale": {
+      "label": "Bilirubine totale",
+      "unit": "µmol/L",
+      "gender_specific": false,
+      "normal": { "min": 3, "max": 21 },
+      "critical_low": null,
+      "critical_high": 340,
+      "clinical_risk_high": "Ictère sévère — insuffisance hépatique ou obstruction biliaire"
+    },
+
+    "albumine": {
+      "label": "Albumine",
+      "unit": "g/L",
+      "gender_specific": false,
+      "normal": { "min": 35, "max": 52 },
+      "critical_low": 20,
+      "critical_high": null,
+      "clinical_risk_low": "Hypoalbuminémie sévère — dénutrition, insuffisance hépatique"
+    },
+
+    "ggt": {
+      "label": "Gamma GT (GGT)",
+      "unit": "U/L",
+      "gender_specific": true,
+      "normal": {
+        "male":   { "min": 8, "max": 61 },
+        "female": { "min": 5, "max": 36 },
+        "default":{ "min": 5, "max": 61 }
+      },
+      "critical_low": null,
+      "critical_high": null,
+      "clinical_risk_high": "Cholestase ou intoxication alcoolique"
+    }
+  },
+
+  "cardiac_markers": {
+
+    "troponine_i": {
+      "label": "Troponine I",
+      "unit": "µg/L",
+      "gender_specific": false,
+      "normal": { "min": 0, "max": 0.04 },
+      "critical_low": null,
+      "critical_high": 0.4,
+      "clinical_risk_high": "Infarctus du myocarde — urgence vitale absolue, ECG immédiat"
+    },
+
+    "ck_mb": {
+      "label": "CK-MB",
+      "unit": "U/L",
+      "gender_specific": false,
+      "normal": { "min": 0, "max": 25 },
+      "critical_low": null,
+      "critical_high": 100,
+      "clinical_risk_high": "Nécrose myocardique — infarctus probable"
+    },
+
+    "bnp": {
+      "label": "BNP (Peptide natriurétique)",
+      "unit": "pg/mL",
+      "gender_specific": false,
+      "normal": { "min": 0, "max": 100 },
+      "critical_low": null,
+      "critical_high": 400,
+      "clinical_risk_high": "Insuffisance cardiaque décompensée"
+    }
+  },
+
+  "blood_gas": {
+
+    "ph_arteriel": {
+      "label": "pH artériel",
+      "unit": "",
+      "gender_specific": false,
+      "normal": { "min": 7.35, "max": 7.45 },
+      "critical_low": 7.10,
+      "critical_high": 7.59,
+      "clinical_risk_low": "Acidose sévère — défaillance multiviscérale imminente",
+      "clinical_risk_high": "Alcalose sévère — tétanie, arythmie"
+    },
+
+    "pao2": {
+      "label": "PaO2 (oxygène artériel)",
+      "unit": "mmHg",
+      "gender_specific": false,
+      "normal": { "min": 80, "max": 105 },
+      "critical_low": 40,
+      "critical_high": null,
+      "clinical_risk_low": "Hypoxémie sévère — insuffisance respiratoire aiguë"
+    },
+
+    "paco2": {
+      "label": "PaCO2 (CO2 artériel)",
+      "unit": "mmHg",
+      "gender_specific": false,
+      "normal": { "min": 35, "max": 45 },
+      "critical_low": 20,
+      "critical_high": 75,
+      "clinical_risk_low": "Hyperventilation sévère — alcalose respiratoire",
+      "clinical_risk_high": "Hypercapnie sévère — narcose au CO2, insuffisance respiratoire"
+    },
+
+    "spo2": {
+      "label": "Saturation O2 (SpO2)",
+      "unit": "%",
+      "gender_specific": false,
+      "normal": { "min": 95, "max": 100 },
+      "critical_low": 85,
+      "critical_high": null,
+      "clinical_risk_low": "Hypoxie critique — détresse respiratoire aiguë"
+    }
+  },
+
+  "coagulation": {
+
+    "tp": {
+      "label": "Taux de Prothrombine (TP)",
+      "unit": "%",
+      "gender_specific": false,
+      "normal": { "min": 70, "max": 100 },
+      "critical_low": 30,
+      "critical_high": null,
+      "clinical_risk_low": "Troubles sévères de la coagulation — risque hémorragique vital"
+    },
+
+    "inr": {
+      "label": "INR",
+      "unit": "",
+      "gender_specific": false,
+      "normal": { "min": 0.8, "max": 1.2 },
+      "critical_low": null,
+      "critical_high": 5.0,
+      "clinical_risk_high": "Anticoagulation excessive — risque hémorragique majeur"
+    },
+
+    "fibrinogene": {
+      "label": "Fibrinogène",
+      "unit": "g/L",
+      "gender_specific": false,
+      "normal": { "min": 2.0, "max": 4.0 },
+      "critical_low": 1.0,
+      "critical_high": null,
+      "clinical_risk_low": "Hypofibrinogénémie — CIVD ou insuffisance hépatique sévère"
+    }
+  },
+
+  "pancreas": {
+
+    "amylase": {
+      "label": "Amylase",
+      "unit": "U/L",
+      "gender_specific": false,
+      "normal": { "min": 25, "max": 125 },
+      "critical_low": null,
+      "critical_high": 200,
+      "clinical_risk_high": "Pancréatite aiguë probable"
+    },
+
+    "lipase": {
+      "label": "Lipase",
+      "unit": "U/L",
+      "gender_specific": false,
+      "normal": { "min": 0, "max": 160 },
+      "critical_low": null,
+      "critical_high": 500,
+      "clinical_risk_high": "Pancréatite aiguë sévère"
+    }
+  },
+
+  "thyroid": {
+
+    "tsh": {
+      "label": "TSH (Thyréostimuline)",
+      "unit": "mUI/L",
+      "gender_specific": false,
+      "normal": { "min": 0.4, "max": 4.0 },
+      "critical_low": 0.1,
+      "critical_high": 10.0,
+      "clinical_risk_low": "Hyperthyroïdie — crise thyrotoxique possible",
+      "clinical_risk_high": "Hypothyroïdie sévère — myxœdème"
+    }
+  }
+}
