@@ -117,3 +117,35 @@ def test_end_to_end_mock_pipeline():
     summary = agent_writer.run(annotated, alert_report, report_text)
     assert "PATIENT OVERVIEW" in summary
     assert "CRITICAL ALERTS" in summary
+
+def test_extractor_noise_filtration():
+    # 1. Load the extremely noisy report
+    report_path = root / "data" / "reports" / "report_noisy.txt"
+    report_text = read_report(str(report_path))
+    
+    # 2. Run the Extractor Agent
+    extracted = agent_extractor.run(report_text)
+    
+    # 3. Assertions
+    # Ensure it extracted 10 biological parameters
+    assert len(extracted) == 10
+    
+    # Verify that it corrected OCR spacing for Hémoglobine
+    hb_param = next((p for p in extracted if p["parameter"] == "hemoglobine"), None)
+    assert hb_param is not None
+    assert hb_param["value"] == 6.8
+    assert hb_param["unit"] == "g/dL"
+    # Ensure raw spaced-out text is captured in source_context
+    assert "H é m o g l o b i n e" in hb_param["source_context"]
+    
+    # Verify Leucocytes is corrected from conversational French spelling "quatorz virgule 2 gramme par littre" to 14.2 G/L
+    leu_param = next((p for p in extracted if p["parameter"] == "leucocytes"), None)
+    assert leu_param is not None
+    assert leu_param["value"] == 14.2
+    assert leu_param["unit"] == "G/L"
+    assert "quatorz virgule 2 gramme par littre" in leu_param["source_context"]
+
+    
+    # Verify that vital signs are EXCLUDED (none of them should be in the parameters)
+    assert not any(p["parameter"] in ["pouls", "tension", "température", "poids"] for p in extracted)
+

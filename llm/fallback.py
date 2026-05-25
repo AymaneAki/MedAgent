@@ -28,10 +28,67 @@ def fallback_call_llm(prompt: str) -> str:
     return "Analyse clinique complétée par l'agent MedAgent."
 
 
+def normalize_line(line: str) -> str:
+    """
+    Cleans OCR noise by collapsing spaces in spaced-out letters (e.g. 'H é m o g l o b i n e')
+    and handles spelling/semantic numbers written in French (e.g. 'quatorz virgule 2').
+    """
+    cleaned = line.strip()
+    
+    # 1. Translate French number words (case-insensitive)
+    french_digits = {
+        "quatorze": "14", "quatorz": "14",
+        "treize": "13", "douze": "12", "onze": "11", "dix": "10",
+        "neuf": "9", "huit": "8", "sept": "7", "six": "6", "cinq": "5",
+        "quatre": "4", "trois": "3", "deux": "2", "un": "1", "une": "1",
+        "zéro": "0", "zero": "0"
+    }
+    for word, digit in french_digits.items():
+        pattern = r"\b" + re.escape(word) + r"\b"
+        cleaned = re.sub(pattern, digit, cleaned, flags=re.IGNORECASE)
+        
+    # 2. Convert "virgule" or "point" between digits into a decimal point "."
+    cleaned = re.sub(r'(\d+)\s*(?:virgule|point|virgl)\s*(\d+)', r'\1.\2', cleaned, flags=re.IGNORECASE)
+    
+    # 3. Clean written unit terms
+    unit_replacements = {
+        "grammes par decilitre": "g/dL",
+        "gramme par decilitre": "g/dL",
+        "grammes par littre": "G/L",
+        "gramme par littre": "G/L",
+        "grammes par litre": "G/L",
+        "gramme par litre": "G/L",
+        "g par litre": "G/L",
+        "pourcent": "%",
+        "pour cent": "%"
+    }
+    for k, v in unit_replacements.items():
+        cleaned = re.sub(r"\b" + re.escape(k) + r"\b", v, cleaned, flags=re.IGNORECASE)
+
+    # 4. Standard space collapsing for OCR (spaced letters)
+    if re.search(r'(?:\b[a-zA-Z0-9]\s+){3,}', cleaned):
+        # Temporarily protect double spaces or punctuation
+        # Replace multiple spaces with a temporary token
+        temp = re.sub(r'\s{2,}', '___DOUBLE_SPACE___', cleaned)
+        # Collapse spaces between single word letters
+        temp = re.sub(r'(?<=\w)\s+(?=\w)', '', temp)
+        temp = re.sub(r'(?<=\d)\s+(?=\d)', '', temp)
+        # Collapse spaces around decimal points
+        temp = re.sub(r'(\d)\s*([.,])\s*(\d)', r'\1\2\3', temp)
+        # Collapse spaces around slashes and percent signs
+        temp = re.sub(r'\s*/\s*', '/', temp)
+        temp = re.sub(r'\s*%\s*', '%', temp)
+        cleaned = temp.replace('___DOUBLE_SPACE___', ' ')
+    return cleaned
+
+
+
+
 def _fallback_extractor(prompt: str) -> str:
     """
     Scans the prompt text for biological values and extracts them
     into a structured JSON array matching the Extractor prompt requirements.
+    Supports source context capture and OCR space-collapse normalization.
     """
     # Define clinical parameters to search for
     keywords = {
@@ -84,16 +141,21 @@ def _fallback_extractor(prompt: str) -> str:
     lines = report_text.split("\n")
 
     for line in lines:
-        if not line.strip():
+        raw_line = line.strip()
+        if not raw_line:
             continue
+        
+        # Normalize OCR space separation
+        normalized = normalize_line(raw_line)
         
         # Look for standard "Keyword : Value Unit" patterns
         for param_key, aliases in keywords.items():
             for alias in aliases:
                 # Regex matches keyword, followed by optional punctuation, space, and a numeric value with optional units
-                # Examples: "Hémoglobine : 6.8 g/dL", "Sodium: 128.0 mmol/L", "Plq 98 G/L"
-                pattern = r"\b" + re.escape(alias) + r"\b\s*[:\-–\s]?\s*([<>≤≥]?\s*[0-9]+[.,]?[0-9]*)\s*([a-zA-Z/%µgG/lL]*)"
-                match = re.search(pattern, line, re.IGNORECASE)
+                # Allow conversational words or standard spacing between parameter name and value in paragraph sentences
+                pattern = r"\b" + re.escape(alias) + r"\b.*?\b([<>≤≥]?\s*[0-9]+[.,]?[0-9]*)\s*([a-zA-Z/%µgG/lL]*)"
+                match = re.search(pattern, normalized, re.IGNORECASE)
+
                 
                 if match:
                     val_str = match.group(1)
@@ -129,13 +191,15 @@ def _fallback_extractor(prompt: str) -> str:
                             extracted.append({
                                 "parameter": param_key,
                                 "value": value,
-                                "unit": unit_str
+                                "unit": unit_str,
+                                "source_context": raw_line
                             })
                         break # Done with this parameter for this line
                     except ValueError:
                         continue
 
     return json.dumps(extracted, indent=2, ensure_ascii=False)
+
 
 
 def _fallback_alerter(prompt: str) -> str:

@@ -191,6 +191,7 @@ st.sidebar.divider()
 # Demo File Loader
 st.sidebar.subheader("💡 Tester rapidement")
 demo_btn = st.sidebar.button("📂 Charger le rapport type (fatigue intense)")
+demo_noisy_btn = st.sidebar.button("🚨 Charger le rapport Stress-Test (Bruit)")
 
 # Manual demographics override
 st.sidebar.subheader("👤 Profil Patient")
@@ -229,6 +230,15 @@ if demo_btn:
         st.sidebar.success("Rapport type chargé successfully !")
     except Exception as e:
         st.sidebar.error(f"Impossible de charger le rapport type : {e}")
+
+if demo_noisy_btn:
+    try:
+        demo_path = root / "data" / "reports" / "report_noisy.txt"
+        st.session_state["report_text"] = read_report(str(demo_path))
+        st.session_state["file_name"] = "report_noisy.txt"
+        st.sidebar.success("Rapport de Stress-Test chargé successfully !")
+    except Exception as e:
+        st.sidebar.error(f"Impossible de charger le rapport de Stress-Test : {e}")
 
 # File Uploader
 uploaded_file = st.file_uploader("Importer un rapport d'analyse médicale (PDF ou TXT)", type=["pdf", "txt"])
@@ -374,6 +384,7 @@ if st.session_state["report_text"]:
                             <th style="text-align: center;">Unité</th>
                             <th style="text-align: center;">Plage de Référence</th>
                             <th style="text-align: center;">Statut</th>
+                            <th>Source brute dans le rapport (survoler)</th>
                             <th>Risque Associé / Commentaire Clinique</th>
                         </tr>
                     </thead>
@@ -386,6 +397,9 @@ if st.session_state["report_text"]:
                                 "ANORMAL" if p["status"] == "ABNORMAL" else "NORMAL"
                     risk = p.get('clinical_risk') or 'Valeur dans les normes de référence.'
                     
+                    # Highlight OCR or source context
+                    src = p.get('source_context', 'N/A')
+                    
                     table_html += f"""
                     <tr>
                         <td style="font-weight: 700; color: var(--text-color);">{p['parameter']}</td>
@@ -393,6 +407,7 @@ if st.session_state["report_text"]:
                         <td style="text-align: center; color: var(--text-color); opacity: 0.8; font-weight: 600;">{p['unit']}</td>
                         <td style="text-align: center; font-family: monospace; color: var(--text-color); opacity: 0.9;">{p['normal_range']}</td>
                         <td style="text-align: center;"><span class="badge {badge_cls}">{badge_lbl}</span></td>
+                        <td style="font-family: monospace; font-size: 0.8rem; color: #888888; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{src}">{src}</td>
                         <td style="color: var(--text-color); opacity: 0.95; font-size: 0.9rem;">{risk}</td>
                     </tr>
                     """

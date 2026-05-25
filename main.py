@@ -144,8 +144,10 @@ def run_pipeline(file_path: Path, gender_override: str = None, output_dir: Path 
         safe_print(f"   → {TerminalColors.GREEN}{len(extracted)} paramètres biologiques extraits.{TerminalColors.ENDC}")
         for p in extracted[:5]:
             safe_print(f"      • {p['parameter']:<22} : {p['value']} {p['unit']}")
+            safe_print(f"        [Source] \"{p.get('source_context', 'N/A').strip()}\"")
         if len(extracted) > 5:
             safe_print(f"      • ... et {len(extracted) - 5} autres.")
+
 
         # Step 3: Interpreter Agent
         safe_print("🧪 Agent 2 — Interpretation biologique...")
