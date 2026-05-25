@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport Médical MedAgent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --primary: #0f172a;
+            --normal: #0ea5e9;
+            --normal-light: #e0f2fe;
+            --abnormal: #f59e0b;
+            --abnormal-light: #fef3c7;
+            --critical: #ef4444;
+            --critical-light: #fee2e2;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 30px 15px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(14, 165, 233, 0.15);
+            border-radius: 50%;
+            filter: blur(50px);
+        }
+        .header-title {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .header-subtitle {
+            margin: 5px 0 0 0;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        @media(max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--primary);
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .patient-info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .patient-info-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .patient-info-list li span.label {
+            font-weight: 600;
+            color: #64748b;
+        }
+        .patient-info-list li span.value {
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
+            height: 80%;
+            align-items: center;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            border-radius: 16px;
+            width: 40%;
+        }
+        .stat-box.critical {
+            background-color: var(--critical-light);
+            color: var(--critical);
+        }
+        .stat-box.abnormal {
+            background-color: var(--abnormal-light);
+            color: var(--abnormal);
+        }
+        .stat-num {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 5px 0 0 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            text-align: left;
+            padding: 14px 18px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .badge-normal {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .badge-abnormal {
+            background-color: var(--abnormal-light);
+            color: #b45309;
+        }
+        .badge-critical {
+            background-color: var(--critical-light);
+            color: #b91c1c;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.75; }
+            100% { opacity: 1; }
+        }
+        .summary-text {
+            font-size: 1.05rem;
+            color: #334155;
+            background-color: #f8fafc;
+            padding: 25px;
+            border-radius: 16px;
+            border-left: 5px solid #0f172a;
+            white-space: pre-line;
+            font-family: inherit;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="header-title">SYNTHÈSE DE DOSSIER CLINIQUES</h1>
+            <p class="header-subtitle">Rapport d'analyse automatisé MedAgent Pipeline</p>
+        </header>
+
+        <div class="grid-2">
+            <div class="card">
+                <h2 class="card-title">👤 Profil & Constantes Patient</h2>
+                <ul class="patient-info-list">
+                    <li><span class="label">Genre</span><span class="value">Masculin</span></li>
+                    <li><span class="label">Âge</span><span class="value">67 ans</span></li>
+                    <li><span class="label">Motif Clinique</span><span class="value">Fatigue intense et dyspnée au repos.</span></li>
+                    <li><span class="label">Antécédents</span><span class="value">Non précisé dans le rapport</span></li>
+                </ul>
+            </div>
+            <div class="card">
+                <h2 class="card-title">🚨 Gravité & Alertes Actives</h2>
+                <div class="stats-container">
+                    <div class="stat-box critical">
+                        <p class="stat-num">1</p>
+                        <p class="stat-label">ALERTES CRITIQUES</p>
+                    </div>
+                    <div class="stat-box abnormal">
+                        <p class="stat-num">6</p>
+                        <p class="stat-label">VALEURS ANORMALES</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 30px;">
+            <h2 class="card-title">🧪 Résultats des Analyses Biologiques</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paramètre</th>
+                            <th style="text-align: center;">Valeur</th>
+                            <th style="text-align: center;">Unité</th>
+                            <th style="text-align: center;">Valeurs de Réf.</th>
+                            <th style="text-align: center;">Statut</th>
+                            <th>Commentaire Clinique / Risque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td style="font-weight: 600;">Hémoglobine</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">6.8</td>
+            <td style="text-align: center; color: #666;">g/dL</td>
+            <td style="text-align: center; font-family: monospace;">13.5–17.5</td>
+            <td style="text-align: center;"><span class="badge badge-critical">CRITIQUE</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Anémie sévère — risque d'insuffisance cardiaque, transfusion à envisager</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Hématocrite</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">21.0</td>
+            <td style="text-align: center; color: #666;">%</td>
+            <td style="text-align: center; font-family: monospace;">41–53</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Anémie profonde</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Leucocytes (GB)</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">14.2</td>
+            <td style="text-align: center; color: #666;">G/L</td>
+            <td style="text-align: center; font-family: monospace;">4.0–10.0</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Hyperleucocytose — possible leucémie ou infection sévère</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Polynucléaires Neutrophiles</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">11.8</td>
+            <td style="text-align: center; color: #666;">G/L</td>
+            <td style="text-align: center; font-family: monospace;">1.8–7.5</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Hyperneutrophilie — infection bactérienne sévère</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Lymphocytes</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">1.4</td>
+            <td style="text-align: center; color: #666;">G/L</td>
+            <td style="text-align: center; font-family: monospace;">1.0–4.0</td>
+            <td style="text-align: center;"><span class="badge badge-normal">NORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Aucun risque identifié</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Plaquettes</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">98.0</td>
+            <td style="text-align: center; color: #666;">G/L</td>
+            <td style="text-align: center; font-family: monospace;">150–400</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Thrombopénie sévère — risque hémorragique spontané</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Volume Globulaire Moyen (VGM)</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">74.0</td>
+            <td style="text-align: center; color: #666;">fL</td>
+            <td style="text-align: center; font-family: monospace;">80–100</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Microcytose — carence martiale probable</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Sodium (Natrémie)</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">128.0</td>
+            <td style="text-align: center; color: #666;">mmol/L</td>
+            <td style="text-align: center; font-family: monospace;">136–145</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Hyponatrémie sévère — œdème cérébral, convulsions</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Potassium (Kaliémie)</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">4.2</td>
+            <td style="text-align: center; color: #666;">mmol/L</td>
+            <td style="text-align: center; font-family: monospace;">3.5–5.0</td>
+            <td style="text-align: center;"><span class="badge badge-normal">NORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Aucun risque identifié</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Créatinine</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">95.0</td>
+            <td style="text-align: center; color: #666;">µmol/L</td>
+            <td style="text-align: center; font-family: monospace;">62–115</td>
+            <td style="text-align: center;"><span class="badge badge-normal">NORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Aucun risque identifié</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">📝 Conclusions de l'Agent MedAgent</h2>
+            <div class="summary-text">
+                PATIENT OVERVIEW<br>Patient de 67 ans, Sexe : Masculin. Motif d'admission : Fatigue intense et dyspnée au repos..<br><br>KEY FINDINGS<br>- Hémoglobine: 6.8 g/dL (normal: 13.5–17.5) → Anémie sévère — risque d'insuffisance cardiaque, transfusion à envisager [CRITIQUE 🔴]<br>- Hématocrite: 21.0 % (normal: 41–53) [ANORMAL 🟡]<br>- Leucocytes (GB): 14.2 G/L (normal: 4.0–10.0) [ANORMAL 🟡]<br>- Polynucléaires Neutrophiles: 11.8 G/L (normal: 1.8–7.5) [ANORMAL 🟡]<br>- Plaquettes: 98.0 G/L (normal: 150–400) [ANORMAL 🟡]<br>- Volume Globulaire Moyen (VGM): 74.0 fL (normal: 80–100) [ANORMAL 🟡]<br>- Sodium (Natrémie): 128.0 mmol/L (normal: 136–145) [ANORMAL 🟡]<br><br>CRITICAL ALERTS 🔴<br>- Hémoglobine: 6.8 g/dL (normal: 13.5–17.5) → Anémie sévère — risque d'insuffisance cardiaque, transfusion à envisager<br><br>RECOMMENDED ACTIONS<br>- [HIGH] Hémoglobine: Avis médical spécialisé immédiat pour hémoglobine critique (6.8) : Anémie sévère — risque d'insuffisance cardiaque, transfusion à envisager.<br>- [MEDIUM] Hématocrite: Contrôle biologique de hématocrite à distance et surveillance de l'état clinique du patient.<br>- [MEDIUM] Leucocytes (GB): Recherche active de foyer infectieux, prélèvements bactériologiques et surveillance thermique.<br>- [MEDIUM] Polynucléaires Neutrophiles: Recherche active de foyer infectieux, prélèvements bactériologiques et surveillance thermique.<br>- [MEDIUM] Plaquettes: Contrôle de la numération plaquettaire sur tube citrate (éliminer un faux positif) et surveillance clinique.<br>- [MEDIUM] Volume Globulaire Moyen (VGM): Contrôle biologique de volume globulaire moyen (vgm) à distance et surveillance de l'état clinique du patient.<br>- [MEDIUM] Sodium (Natrémie): Surveillance hydro-électrolytique et adaptation des apports hydriques journaliers.
+            </div>
+        </div>
+
+        <footer>
+            Document à caractère médical confidentiel — Généré par MedAgent multi-agent IA le 2026.
+        </footer>
+    </div>
+</body>
+</html>

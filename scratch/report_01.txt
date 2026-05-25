@@ -1,0 +1,19 @@
+RAPPORT BIOLOGIQUE - SERVICE DES URGENCES
+Date : 22/05/2026
+
+IDENTITÉ DU PATIENT
+Âge : 67 ans
+Sexe : Masculin
+Motif : Fatigue intense et dyspnée au repos.
+
+CONSTANTES BIOLOGIQUES
+Hémoglobine : 6.8 g/dL
+Hématocrite : 21.0 %
+Leucocytes : 14.2 G/L
+Neutrophiles : 11.8 G/L
+Lymphocytes : 1.4 G/L
+Plaquettes : 98.0 G/L
+VGM : 74.0 fL
+Sodium : 128.0 mmol/L
+Potassium : 4.2 mmol/L
+Créatinine : 95.0 µmol/L
