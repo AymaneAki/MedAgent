@@ -1,0 +1,25 @@
+RAPPORT BIOLOGIQUE - SERVICE DES URGENCES
+Établissement : CHU Ibn Sina
+Date          : 26/05/2026   Heure : 14:23
+
+IDENTITÉ DU PATIENT
+Nom    : F.Z
+Âge    : 34 ans
+Sexe   : Féminin
+Motif  : Douleurs abdominales, nausées, vomissements
+
+ANTÉCÉDENTS : Diabète type 1, Lupus, Anémie ferriprive
+
+RÉSULTATS BIOLOGIQUES
+Hémoglobine         : 8.4    g/dL
+Plaquettes          : 44     G/L
+Leucocytes          : 18.6   G/L
+Glucose             : 24.7   mmol/L
+Potassium           : 3.1    mmol/L
+Lipase              : 640    U/L
+Fibrinogène         : 0.9    g/L
+TSH                 : 0.08   mUI/L
+Troponine I         : 0.02   µg/L
+pH artériel         : 7.28
+
+Médecin prescripteur : Dr. S. Alaoui

@@ -1,106 +1,346 @@
-# 🧬 MedAgent — Assistant Médical Multi-Agent d'Aide à la Décision
+# 🧬 MedAgent
 
-MedAgent est une plateforme d'analyse biologique et clinique automatisée de qualité professionnelle. Elle utilise un orchestre d'agents intelligents pour extraire les paramètres biologiques de rapports cliniques (PDF/TXT), les confronter à des normes médicales rigoureuses, générer des alertes de criticité et rédiger une synthèse clinique d'urgence.
+> **Multi-agent clinical report analysis powered by CrewAI and BitNet b1.58**
+
+MedAgent automatically analyzes medical lab reports (PDF or text), classifies every biological parameter against international reference ranges, prioritizes critical alerts, and generates a structured clinical summary — in under 3 seconds.
+
+Built as an academic project for the Applied AI module at ENSIAS, by **Zakariae BELLIL** and **Aymane EL AKKIOUI**.
 
 ---
 
-## 🏗️ Architecture du Système
+## Table of Contents
 
-MedAgent repose sur une chaîne d'exécution multi-agent séquentielle et hautement découplée :
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Agents](#agents)
+- [LLM & Fallback](#llm--fallback-cascade)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Running Tests](#running-tests)
+- [Sample Output](#sample-output)
+- [Limitations](#limitations)
 
-```mermaid
-graph TD
-    A[Rapport Clinique Brut .pdf / .txt] --> B(pypdf Reader)
-    B --> C[Agent 1: Extractor]
-    C -->|Extrait des paramètres bruts| D[Agent 2: Interpreter]
-    D -->|Vérifie les seuils thresholds.json| E[Agent 3: Alerter]
-    E -->|Génère les fiches d'alerte risque & urgence| F[Agent 4: Writer]
-    F -->|Rédige le compte-rendu| G[Générateur de Rapports]
-    
-    G --> H[Fiche Synthèse Markdown]
-    G --> I[Page Web Interactive HTML]
-    G --> J[Document Médical Officiel PDF]
+---
+
+## Overview
+
+Medical staff in emergency departments manually read dozens of lab reports per shift. MedAgent automates this process with a 4-agent sequential pipeline:
+
+| Step | Agent | Method | Output |
+|------|-------|--------|--------|
+| 1 | **Extractor** | LLM + PDFReaderTool | JSON array of parameters |
+| 2 | **Interpreter** | Deterministic thresholds | Annotated list with NORMAL / ABNORMAL / CRITICAL |
+| 3 | **Alerter** | LLM | Prioritized alert list with clinical actions |
+| 4 | **Writer** | LLM | Structured medical summary |
+
+**Key design decision:** classification (Agent 2) is fully deterministic — no LLM is involved. This guarantees 100% reproducible and medically accurate classification regardless of model quality.
+
+---
+
+## Architecture
+
+```
+Medical Report (PDF / TXT)
+         │
+         ▼
+┌─────────────────────────────────────────────┐
+│              CrewAI Crew                     │
+│         Process.sequential                   │
+│                                              │
+│  ┌──────────────┐    ┌───────────────────┐  │
+│  │  Agent 1     │    │  PDFReaderTool    │  │
+│  │  Extractor   │───▶│  (BaseTool)       │  │
+│  └──────┬───────┘    └───────────────────┘  │
+│         │                                    │
+│  ┌──────▼───────┐    ┌───────────────────┐  │
+│  │  Agent 2     │    │  BulkThreshold    │  │
+│  │  Interpreter │───▶│  CheckerTool      │  │
+│  └──────┬───────┘    └───────────────────┘  │
+│         │                                    │
+│  ┌──────▼───────┐                           │
+│  │  Agent 3     │  (LLM — clinical actions) │
+│  │  Alerter     │                           │
+│  └──────┬───────┘                           │
+│         │                                    │
+│  ┌──────▼───────┐                           │
+│  │  Agent 4     │  (LLM — summary writing)  │
+│  │  Writer      │                           │
+│  └──────┬───────┘                           │
+└─────────┼───────────────────────────────────┘
+          │
+          ▼
+   MD + HTML + PDF outputs
+```
+
+### Communication pattern
+
+Agents communicate via **sequential context passing** — the output of each task is passed as context to the next task in the CrewAI pipeline. No shared state, no blackboard.
+
+---
+
+## Agents
+
+### Agent 1 — Extractor
+- **Tool:** `PDFReaderTool` — reads the file and returns raw text
+- **LLM task:** extract all biological parameters as a JSON array
+- **Output:** `[{"parameter": "hemoglobine", "value": 6.8, "unit": "g/dL", "source_context": "..."}]`
+- **Explainability:** each parameter stores its original source line for clinical traceability
+
+### Agent 2 — Interpreter
+- **Tool:** `BulkThresholdCheckerTool` — deterministic, no LLM
+- **Logic:** compares each value against `config/thresholds.json` (30+ parameters, WHO/ABIM standards)
+- **Gender-aware:** separate reference ranges for male / female
+- **Output:** annotated list with `status` (NORMAL / ABNORMAL / CRITICAL) and `clinical_risk`
+
+### Agent 3 — Alerter
+- **Input:** annotated parameter list from Agent 2
+- **LLM task:** for each CRITICAL or ABNORMAL value, generate one concrete clinical action
+- **Output:** alert list sorted by urgency (HIGH → MEDIUM), with actions
+
+### Agent 4 — Writer
+- **Input:** context from all three previous agents
+- **LLM task:** write a structured 4-section clinical summary
+- **Output:** PATIENT OVERVIEW / KEY FINDINGS / CRITICAL ALERTS / RECOMMENDED ACTIONS
+
+---
+
+## LLM & Fallback Cascade
+
+MedAgent is designed to run in hospital environments where network connectivity may be limited. The LLM layer tries each option in order:
+
+```
+1. BitNet b1.58 (Docker, local)     ← default, CPU-only, no internet
+         │ if unavailable
+         ▼
+2. Google Gemini API                 ← set GEMINI_API_KEY in .env
+         │ if unavailable
+         ▼
+3. Anthropic Claude API             ← set ANTHROPIC_API_KEY in .env
+```
+
+A 200ms TCP ping checks server availability before each call to avoid long timeouts. Fallback switching is automatic, transparent, and logged.
+
+---
+
+## Project Structure
+
+```
+MedAgent/
+│
+├── crew.py                      # CrewAI agents, tasks, and Crew assembly
+├── main.py                      # CLI entry point
+├── app.py                       # Streamlit web interface
+│
+├── crewai_tools/
+│   ├── pdf_tool.py              # PDFReaderTool (BaseTool wrapper)
+│   ├── threshold_tool.py        # BulkThresholdCheckerTool (BaseTool wrapper)
+│   └── __init__.py
+│
+├── agents/                      # Legacy standalone agents (kept for reference)
+│   ├── agent_extractor.py
+│   ├── agent_interpreter.py
+│   ├── agent_alerter.py
+│   └── agent_writer.py
+│
+├── tools/
+│   ├── pdf_reader.py            # PDF and TXT file reader
+│   ├── threshold_checker.py     # Deterministic classification logic
+│   └── report_generator.py      # MD + HTML + PDF export
+│
+├── config/
+│   ├── prompts/
+│   │   ├── extractor.txt        # Agent 1 prompt template
+│   │   ├── alerter.txt          # Agent 3 prompt template
+│   │   └── writer.txt           # Agent 4 prompt template
+│   ├── thresholds.json          # Medical reference ranges (WHO/ABIM)
+│   └── prompt_loader.py
+│
+├── llm/
+│   ├── model.py                 # Fallback cascade LLM caller
+│   └── fallback.py              # Offline rule-based fallback engine
+│
+├── data/reports/                # Input reports (.pdf or .txt)
+├── output/summaries/            # Generated MD, HTML, PDF outputs
+├── test/                        # pytest test suite
+│
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+└── .env
 ```
 
 ---
 
-## 🛡️ Résilience et Architecture LLM Multi-Niveaux (Fallback)
+## Quick Start
 
-Pour garantir une disponibilité totale (100% de réussite) même en environnement contraint ou déconnecté, la couche d'accès LLM (`llm/model.py`) est conçue avec une architecture résiliente à quatre niveaux :
+### Option A — Docker (recommended)
 
-1. **Serveur BitNet Local (Docker)** : Option principale basse consommation utilisant un modèle quantifié ultra-léger 1-bit (`bitnet-b1.58-2b-4t`).
-2. **API Google Gemini (Cloud)** : Première bascule automatique en ligne si configurée via `GEMINI_API_KEY`.
-3. **API OpenAI (Cloud)** : Seconde bascule automatique si configurée via `OPENAI_API_KEY`.
-4. **Moteur d'Heuristique Clinique Local (Mock IA)** : Ultime secours intelligent basé sur des expressions régulières cliniques avancées et le référentiel de seuils locaux. Ce moteur garantit que l'analyse s'exécute avec brio sans aucune connexion réseau et sans serveur actif.
-
----
-
-## 🚀 Fonctionnalités Clés
-
-* **Lecture Multi-Format** : Parseur de fichiers texte et de documents `.pdf` scannés ou électroniques.
-* **Seuils Cliniques Dynamiques** : Base de connaissances de référence (`config/thresholds.json`) structurée par catégories (Hématologie, Biochimie, Enzymes Cardiaques, Coagulation, etc.) prenant en compte le genre (Masculin, Féminin, Défaut) et la criticité.
-* **Tableau de Bord Streamlit Haut de Gamme** :
-  * Processus multi-agent animé et transparent.
-  * Graphiques analytiques interactifs des écarts aux normes.
-  * Cartes de gravité dynamiques (urgences critiques signalées en clignotement rouge).
-  * Système d'historique local permettant de charger, comparer et recharger les analyses passées.
-* **Génération Multi-Format Directe** : Production automatique de rapports au format Markdown propre, HTML responsive de haute qualité esthétique et PDF officiel signé.
-* **Traitement CLI & Par Lot (Batch)** : Traitement en une commande d'un répertoire entier de rapports médicaux.
-
----
-
-## 🔧 Installation & Configuration
-
-### 1. Prérequis
-
-* Python 3.10 ou supérieur
-* (Optionnel) Docker et Docker Compose si vous souhaitez faire tourner le serveur local de calcul 1-bit.
-
-### 2. Installation des dépendances
+Starts BitNet server + Streamlit UI automatically:
 
 ```bash
+git clone https://github.com/AymaneAki/MedAgent.git
+cd MedAgent
+cp .env.example .env       # configure API keys if needed
+docker compose up --build
+```
+
+Open **http://localhost:8501** in your browser.
+
+> **Note:** BitNet takes ~60 seconds to load on first start. The UI waits automatically.
+
+### Option B — Local Python
+
+```bash
+git clone https://github.com/AymaneAki/MedAgent.git
+cd MedAgent
 pip install -r requirements.txt
-```
-
-### 3. Variables d'environnement
-
-Copiez le fichier d'exemple et configurez vos clés ou préférences :
-
-```bash
 cp .env.example .env
-```
-
----
-
-## 💻 Guide d'Utilisation
-
-### Mode 1 : Console Web Interactive (Streamlit)
-
-Lancez l'interface graphique interactive dans votre navigateur :
-
-```bash
 streamlit run app.py
 ```
-*L'application s'ouvre d'elle-même. Vous pouvez glisser-déposer vos PDF ou tester instantanément à l'aide du bouton **Charger le rapport type**.*
 
-### Mode 2 : Ligne de Commande CLI
+You'll need either a running BitNet server or a cloud API key configured in `.env`.
 
-Pour analyser un rapport unique :
+---
+
+## Usage
+
+### Web Interface
+
+Upload a `.pdf` or `.txt` report via the Streamlit UI. The pipeline runs automatically and displays:
+- classified parameters table with color-coded status badges
+- critical alerts section
+- structured clinical summary
+- downloadable MD / HTML / PDF outputs
+
+### CLI — single report
+
 ```bash
-python main.py --file data/reports/report_01.txt --format all
+python main.py --file data/reports/report_01.txt
 ```
 
-Pour analyser un dossier complet de rapports (traitement par lot) :
+With gender override for accurate reference ranges:
+
+```bash
+python main.py --file data/reports/report_02.txt --gender female
+```
+
+### CLI — batch processing
+
 ```bash
 python main.py --dir data/reports/ --output-dir output/summaries/
 ```
 
----
-
-## 🧪 Tests de Qualité
-
-Une suite complète de tests unitaires et d'intégration validant le parseur, le système d'alertes cliniques, le checker de seuils et le fallback LLM est disponible. Exécutez-les simplement avec :
+### Docker CLI
 
 ```bash
-pytest test/test_medagent.py
+docker compose run --rm medagents-cli --file data/reports/report_01.txt
+docker compose run --rm medagents-cli --dir data/reports/
 ```
+
+---
+
+## Configuration
+
+Copy `.env.example` to `.env` and set the relevant variables:
+
+```env
+# Local BitNet server (Docker) — default, no key needed
+BITNET_BASE_URL=http://bitnet-server:11434
+BITNET_MODEL=bitnet-b1.58-2b-4t
+
+# Fallback: Google Gemini
+# GEMINI_API_KEY=your_key_here
+
+# Fallback: Anthropic Claude
+# ANTHROPIC_API_KEY=your_key_here
+
+LOG_LEVEL=INFO
+```
+
+---
+
+## Running Tests
+
+```bash
+pytest test/test_medagent.py -v
+```
+
+Expected output:
+
+```
+test/test_medagent.py::test_threshold_checker     PASSED
+test/test_medagent.py::test_pdf_reader            PASSED
+test/test_medagent.py::test_fallback_extractor    PASSED
+test/test_medagent.py::test_fallback_alerter      PASSED
+test/test_medagent.py::test_fallback_writer       PASSED
+test/test_medagent.py::test_pipeline_end_to_end   PASSED
+test/test_medagent.py::test_ocr_stress            PASSED
+
+9 passed in 3.12s
+```
+
+---
+
+## Sample Output
+
+Input: `report_02_small.txt` (female patient, 34 years old)
+
+```
+PATIENT OVERVIEW
+Patient de 34 ans, Féminin.
+Motif : Douleurs abdominales, nausées, vomissements.
+Antécédents : Diabète type 1, Lupus, Anémie ferriprive.
+
+KEY FINDINGS
+• Plaquettes: 44.0 G/L (normal: 150–400)  → CRITIQUE 🔴
+• Lipase: 640.0 U/L (normal: 0–160)        → CRITIQUE 🔴
+• Fibrinogène: 0.9 g/L (normal: 2.0–4.0)  → CRITIQUE 🔴
+• TSH: 0.08 mUI/L (normal: 0.4–4.0)       → CRITIQUE 🔴
+• Hémoglobine: 8.4 g/dL (normal: 12–16)   → ANORMAL 🟡
+• Leucocytes: 18.6 G/L (normal: 4–10)     → ANORMAL 🟡
+
+CRITICAL ALERTS 🔴
+• Plaquettes 44 G/L — Thrombopénie sévère, risque hémorragique spontané
+• Lipase 640 U/L — Pancréatite aiguë sévère
+• Fibrinogène 0.9 g/L — CIVD ou insuffisance hépatique sévère
+• TSH 0.08 mUI/L — Crise thyrotoxique possible
+
+RECOMMENDED ACTIONS
+1. [HIGH] Transfusion plaquettaire en urgence
+2. [HIGH] Mise à jeun + hydratation IV + échographie abdominale urgente
+3. [HIGH] Plasma frais congelé (PFC) en urgence, bilan CIVD
+4. [HIGH] Antithyroïdiens + bêtabloquants + avis endocrinologique
+```
+
+---
+
+## Limitations
+
+- **Small LLM quality:** BitNet b1.58 2B is a very lightweight model. Clinical action recommendations may lack precision for rare or complex cases. The fallback cascade to Gemini or Claude produces better results.
+- **Structured reports only:** the extractor is optimized for formatted lab reports. Unstructured clinical notes or handwritten scans are not supported.
+- **No medical certification:** MedAgent is an academic prototype. It must not be used for real clinical decisions without validation by qualified medical professionals.
+- **Reference ranges:** thresholds are based on WHO/ABIM adult standards. Pediatric, pregnancy, or population-specific ranges are not currently included.
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Agent orchestration | CrewAI |
+| LLM (local) | BitNet b1.58 2B4T |
+| LLM (fallback) | Gemini API / Claude API |
+| Web interface | Streamlit |
+| PDF parsing | pypdf |
+| Report export | FPDF2 |
+| Tests | pytest |
+| Containerization | Docker Compose |
+
+---
+
+## Authors
+
+**Zakariae BELLIL** · **Aymane EL AKKIOUI**
+ENSIAS — Module IA & Applications — 2026

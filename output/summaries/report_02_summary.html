@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport Médical MedAgent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --primary: #0f172a;
+            --normal: #0ea5e9;
+            --normal-light: #e0f2fe;
+            --abnormal: #f59e0b;
+            --abnormal-light: #fef3c7;
+            --critical: #ef4444;
+            --critical-light: #fee2e2;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 30px 15px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(14, 165, 233, 0.15);
+            border-radius: 50%;
+            filter: blur(50px);
+        }
+        .header-title {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .header-subtitle {
+            margin: 5px 0 0 0;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        @media(max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--primary);
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .patient-info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .patient-info-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .patient-info-list li span.label {
+            font-weight: 600;
+            color: #64748b;
+        }
+        .patient-info-list li span.value {
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
+            height: 80%;
+            align-items: center;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            border-radius: 16px;
+            width: 40%;
+        }
+        .stat-box.critical {
+            background-color: var(--critical-light);
+            color: var(--critical);
+        }
+        .stat-box.abnormal {
+            background-color: var(--abnormal-light);
+            color: var(--abnormal);
+        }
+        .stat-num {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 5px 0 0 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            text-align: left;
+            padding: 14px 18px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .badge-normal {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .badge-abnormal {
+            background-color: var(--abnormal-light);
+            color: #b45309;
+        }
+        .badge-critical {
+            background-color: var(--critical-light);
+            color: #b91c1c;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.75; }
+            100% { opacity: 1; }
+        }
+        .summary-text {
+            font-size: 1.05rem;
+            color: #334155;
+            background-color: #f8fafc;
+            padding: 25px;
+            border-radius: 16px;
+            border-left: 5px solid #0f172a;
+            white-space: pre-line;
+            font-family: inherit;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="header-title">SYNTHÈSE DE DOSSIER CLINIQUES</h1>
+            <p class="header-subtitle">Rapport d'analyse automatisé MedAgent Pipeline</p>
+        </header>
+
+        <div class="grid-2">
+            <div class="card">
+                <h2 class="card-title">👤 Profil & Constantes Patient</h2>
+                <ul class="patient-info-list">
+                    <li><span class="label">Genre</span><span class="value">Féminin</span></li>
+                    <li><span class="label">Âge</span><span class="value">34 ans</span></li>
+                    <li><span class="label">Motif Clinique</span><span class="value">Douleurs abdominales, nausées, vomissements</span></li>
+                    <li><span class="label">Antécédents</span><span class="value">Non précisé dans le rapport</span></li>
+                </ul>
+            </div>
+            <div class="card">
+                <h2 class="card-title">🚨 Gravité & Alertes Actives</h2>
+                <div class="stats-container">
+                    <div class="stat-box critical">
+                        <p class="stat-num">4</p>
+                        <p class="stat-label">ALERTES CRITIQUES</p>
+                    </div>
+                    <div class="stat-box abnormal">
+                        <p class="stat-num">5</p>
+                        <p class="stat-label">VALEURS ANORMALES</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 30px;">
+            <h2 class="card-title">🧪 Résultats des Analyses Biologiques</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paramètre</th>
+                            <th style="text-align: center;">Valeur</th>
+                            <th style="text-align: center;">Unité</th>
+                            <th style="text-align: center;">Valeurs de Réf.</th>
+                            <th style="text-align: center;">Statut</th>
+                            <th>Commentaire Clinique / Risque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td style="font-weight: 600;">Hémoglobine</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">8.4</td>
+            <td style="text-align: center; color: #666;">g/dL</td>
+            <td style="text-align: center; font-family: monospace;">12.0–16.0</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Anémie sévère — risque d'insuffisance cardiaque, transfusion à envisager</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Plaquettes</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">44.0</td>
+            <td style="text-align: center; color: #666;">G/L</td>
+            <td style="text-align: center; font-family: monospace;">150–400</td>
+            <td style="text-align: center;"><span class="badge badge-critical">CRITIQUE</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Thrombopénie sévère — risque hémorragique spontané</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Leucocytes (GB)</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">18.6</td>
+            <td style="text-align: center; color: #666;">G/L</td>
+            <td style="text-align: center; font-family: monospace;">4.0–10.0</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Hyperleucocytose — possible leucémie ou infection sévère</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Glycémie (à jeun)</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">24.7</td>
+            <td style="text-align: center; color: #666;">mmol/L</td>
+            <td style="text-align: center; font-family: monospace;">3.9–6.1</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Hyperglycémie majeure — acidocétose ou coma hyperosmolaire</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Potassium (Kaliémie)</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">3.1</td>
+            <td style="text-align: center; color: #666;">mmol/L</td>
+            <td style="text-align: center; font-family: monospace;">3.5–5.0</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Hypokaliémie sévère — arythmie cardiaque, arrêt cardiaque</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Lipase</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">640.0</td>
+            <td style="text-align: center; color: #666;">U/L</td>
+            <td style="text-align: center; font-family: monospace;">0–160</td>
+            <td style="text-align: center;"><span class="badge badge-critical">CRITIQUE</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Pancréatite aiguë sévère</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Fibrinogène</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">0.9</td>
+            <td style="text-align: center; color: #666;">g/L</td>
+            <td style="text-align: center; font-family: monospace;">2.0–4.0</td>
+            <td style="text-align: center;"><span class="badge badge-critical">CRITIQUE</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Hypofibrinogénémie — CIVD ou insuffisance hépatique sévère</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">TSH (Thyréostimuline)</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">0.08</td>
+            <td style="text-align: center; color: #666;">mUI/L</td>
+            <td style="text-align: center; font-family: monospace;">0.4–4.0</td>
+            <td style="text-align: center;"><span class="badge badge-critical">CRITIQUE</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Hyperthyroïdie — crise thyrotoxique possible</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">Troponine I</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">0.02</td>
+            <td style="text-align: center; color: #666;">µg/L</td>
+            <td style="text-align: center; font-family: monospace;">0–0.04</td>
+            <td style="text-align: center;"><span class="badge badge-normal">NORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Aucun risque identifié</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600;">pH artériel</td>
+            <td style="text-align: center; font-family: monospace; font-size: 1.1rem; font-weight: 700;">7.28</td>
+            <td style="text-align: center; color: #666;"></td>
+            <td style="text-align: center; font-family: monospace;">7.35–7.45</td>
+            <td style="text-align: center;"><span class="badge badge-abnormal">ANORMAL</span></td>
+            <td style="font-size: 0.9rem; color: #444;">Acidose sévère — défaillance multiviscérale imminente</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">📝 Conclusions de l'Agent MedAgent</h2>
+            <div class="summary-text">
+                PATIENT OVERVIEW<br>Patient de 34 ans, Sexe : F. Motif d'admission : Douleurs abdominales, nausées, vomissements.<br><br>KEY FINDINGS<br>- Plaquettes: 44.0 G/L (normal: 150–400) → Thrombopénie sévère — risque hémorragique spontané [CRITIQUE 🔴]<br>- Lipase: 640.0 U/L (normal: 0–160) → Pancréatite aiguë sévère [CRITIQUE 🔴]<br>- Fibrinogène: 0.9 g/L (normal: 2.0–4.0) → Hypofibrinogénémie — CIVD ou insuffisance hépatique sévère [CRITIQUE 🔴]<br>- TSH (Thyréostimuline): 0.08 mUI/L (normal: 0.4–4.0) → Hyperthyroïdie — crise thyrotoxique possible [CRITIQUE 🔴]<br>- Hémoglobine: 8.4 g/dL (normal: 12.0–16.0) [ANORMAL 🟡]<br>- Leucocytes (GB): 18.6 G/L (normal: 4.0–10.0) [ANORMAL 🟡]<br>- Glycémie (à jeun): 24.7 mmol/L (normal: 3.9–6.1) [ANORMAL 🟡]<br>- Potassium (Kaliémie): 3.1 mmol/L (normal: 3.5–5.0) [ANORMAL 🟡]<br>- pH artériel: 7.28  (normal: 7.35–7.45) [ANORMAL 🟡]<br><br>CRITICAL ALERTS 🔴<br>- Plaquettes: 44.0 G/L (normal: 150–400) → Thrombopénie sévère — risque hémorragique spontané<br>- Lipase: 640.0 U/L (normal: 0–160) → Pancréatite aiguë sévère<br>- Fibrinogène: 0.9 g/L (normal: 2.0–4.0) → Hypofibrinogénémie — CIVD ou insuffisance hépatique sévère<br>- TSH (Thyréostimuline): 0.08 mUI/L (normal: 0.4–4.0) → Hyperthyroïdie — crise thyrotoxique possible<br><br>RECOMMENDED ACTIONS<br>- [HIGH] Plaquettes: Transfusion de plaquettes en urgence et évitement de toute injection intramusculaire ou traumatisme.<br>- [HIGH] Lipase: Avis médical spécialisé immédiat pour lipase critique (640.0) : Pancréatite aiguë sévère.<br>- [HIGH] Fibrinogène: Avis médical spécialisé immédiat pour fibrinogène critique (0.9) : Hypofibrinogénémie — CIVD ou insuffisance hépatique sévère.<br>- [HIGH] TSH (Thyréostimuline): Réactiver : Préserver le TSH au-dessus des valeurs normales pour éviter une crise thyrotoxique.<br>- [MEDIUM] Hémoglobine: Contrôle biologique de hémoglobine à distance et surveillance de l'état clinique du patient.<br>- [MEDIUM] Leucocytes (GB): Recherche active de foyer infectieux, prélèvements bactériologiques et surveillance thermique.<br>- [MEDIUM] Glycémie (à jeun): Contrôle biologique de glycémie (à jeun) à distance et surveillance de l'état clinique du patient.<br>- [MEDIUM] Potassium (Kaliémie): Contrôle biologique de potassium (kaliémie) à distance et surveillance de l'état clinique du patient.<br>- [MEDIUM] pH artériel: Réactiver: Réinforcer le surveillance continu et préparer le patient pour une intervention chirurgicale si le flux cérébrospinaux se révèle.
+            </div>
+        </div>
+
+        <footer>
+            Document à caractère médical confidentiel — Généré par MedAgent multi-agent IA le 2026.
+        </footer>
+    </div>
+</body>
+</html>
