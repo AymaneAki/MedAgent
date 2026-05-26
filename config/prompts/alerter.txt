@@ -10,3 +10,6 @@ Status    : {status}
 Risk      : {clinical_risk}
 
 Action:
+
+IMPORTANT: Answer in French only.
+IMPORTANT: The action must be consistent with the Risk description above. Never contradict it.

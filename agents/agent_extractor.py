@@ -25,12 +25,13 @@ def _parse_json(raw: str) -> list:
         data = json.loads(match.group())
         return [
             {
-                "parameter": str(item["parameter"]).lower().strip(),
-                "value":     float(item["value"]),
-                "unit":      str(item.get("unit", "")).strip().replace("G/LL", "G/L").replace("g/dl", "g/dL")
+                "parameter":      str(item["parameter"]).lower().strip(),
+                "value":          float(item["value"]),
+                "unit":           str(item.get("unit", "")).strip().replace("G/LL", "G/L").replace("g/dl", "g/dL"),
+                "source_context": str(item.get("source_context", "Extrait du rapport")).strip()
             }
             for item in data
             if "parameter" in item and "value" in item
         ]
     except json.JSONDecodeError as e:
-        raise ValueError(f"JSON parse error: {e}\nRaw:\n{raw}")
+        raise ValueError(f"JSON parse error: {e}\nRaw:\n{raw}")

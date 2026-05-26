@@ -1,0 +1,42 @@
+LAB0RATOIRE DE B*IOLOGIE MEDICALE - SUD PARIS
+==============================================
+Date de validation : 25/05/2026   -   ID Examen : 8940-X903
+Tél: 01.40.XX.XX.XX (ligne occupée de 8h à 12h)
+Abonnement facturation : OUI  --- Facture N° 2026-9049 (PAIEMENT EFFECTUÉ)
+@@@ --- SYSTEM NOISE: Error_Flag_0x992490 --- @@@
+||| CARACTÈRES INUTILES : ### &&& *** !!! |||
+
+IDENTITÉ DU PATIENT
+-------------------
+Nom : DUBOIS
+Prénom : Jean-Pierre
+Âge : 72 ans   -   Sexe : Masculin
+Motif d'admission : Confusion passagère, asthénie intense depuis 3 jours.
+
+RAPPORT CLINIQUE NARRATIF (RÉDACTION PAR LE MÉDECIN DE GARDE)
+--------------------------------------------------------------
+Le patient Jean-Pierre, âgé de 72 ans, a été admis ce matin. Il mentionne qu'il a beaucoup de mal à monter les escaliers de son immeuble depuis qu'il a adopté un chien particulièrement fougueux la semaine dernière. Il raconte qu'il s'est disputé avec sa boulangère hier à propos du prix du pain aux raisins, ce qui l'a beaucoup fatigué.
+Au niveau clinique, le pouls est à 78 bpm, la tension artérielle mesurée au bras gauche est de 125/82 mmHg et la température corporelle est stable à 37.1 °C. Ces constantes vitales sont globalement dans les normes.
+Le patient présente une légère déshydratation clinique. Le bilan biologique sanguin a été réalisé en urgence pour éliminer un désordre métabolique majeur ou une anémie.
+
+CONSTANTES BIOLOGIQUES SANGUINES (AVEC BRUIT D'EXPLOITATION OCR)
+-----------------------------------------------------------------
+[OCR ERROR: LINE SPLIT]
+H é m o g l o b i n e  :  6 . 8   g / d L
+H é m a t o c r i t e  :  2 1 . 0   %
+Le taux de Leucocytes mesure est environ quatorz virgule 2 gramme par littre dans le sang.
+Neutrophiles : 11.8 G/L
+Le taux de Leucocytes mesure est environ quatorz virgule 2 gramme par littre dans le sang.
+[SYS_MSG: LOGGED BY SYSTEM 2026]
+Plaquettes : 98.0 G/L
+VGM : 74.0 fL
+Sodium : 128.0 mmol/L
+Potassium : 4.2 mmol/L
+Créatinine : 95.0 µmol/L
+
+NOTE ADMINISTRATIVE DE FIN DE PAGE
+----------------------------------
+Le laboratoire décline toute responsabilité en cas de mauvaise lecture par OCR.
+Veuillez vérifier le paiement de votre facture N° 2026-9049 auprès de notre secrétariat.
+Prochain rendez-vous suggéré le 25/06/2026.
+==============================================
